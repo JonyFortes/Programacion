@@ -6,25 +6,55 @@
 <body>
     <h1><img src="logo.png" alt="logo" width="40%"></h1>
     <div  id="search">
-            <input type="search" id="miBusqueda" name="q">
-            <button>Buscar</button>
+        <form>
+            <input id="buscador" placeholder="Ingresa un personaje..." type="text" name="inputCharacter">
+            <input id="buscador-btn" type="submit" value="Search">
+        </form>
+    
     </div>
     <div class="grid"></div>
     <script>
-        const CardItem = user => {
-            const {name, id, image, species, status, gender,location, episode} = user
-            console.log(episode)
+
+const getCharactersByQuery = async (baseUrl, query) => {
+            const url = `${baseUrl}/character/?name=${query}`
+            const response = await fetch(url)
+            const { results: characters } = await response.json()
+            return characters
+        }
+        const appendElements = (characters, emptyGrid) => {
+// Obtenemos el elemento con clase grid
+const grid = document.querySelector('.grid')
+// Si emptyGrid es true vaciamos todos los elementos dentro del mismo
+    if (emptyGrid === true) grid.innerHTML = null
+// Iteramos sobre characters y por cada iteración generamos un HTML y lo vamos apendeando al elemento .grid
+    characters.forEach(character => {
+        const cardItemHTML = CardItem(character)
+        grid.innerHTML += cardItemHTML
+        })
+}
+
+const CardItem = user => {
+            const {name, id, image, species, status, gender, origin, episode} = user;
             episode.forEach(episode => {
-                fetch(episode)
-                .then (response => response.json())
-                .then (episode => {
-        console.log(episode.name)
-        const printe = episode.name
-    })
-            })
+               fetch(episode)
+               .then (response => response.json())
+               .then (episode => {
+       console.log(episode.name)
+   })
+           })
             
-            return ` <div class="card"><div><img src="${image}"></div><div class="cardtext"><h3>Nombre: <span>${name}</span></h3><p>Especie: <span>${species}</span><br>Estado: <span>${status}</span><br>G&eacute;nero: <span>${gender}</span><br>Planeta: <span>${location.name}</span><br>${printe}<br><button id="button">Ver episodios</button></div></p></div>
-            `
+           
+            return `<div class="card"><div class="card-image"><img src="${image}"></div>
+            <div class="card-content">
+                <h3 class="title is-4">${name}</span></h3>
+                <p>${"Specie: <span>"+ species}</span><br>
+                ${"Gender: <span>"+ gender}</span><br>
+                ${"Status: <span>" + status}</span><br>
+                ${"Origin: <span>" + origin.name}</span><br>
+                ${"First Episode: <span>" + episode.name}</span><br></div>
+                </p>
+            
+            </div>`
         }
     async function getUsers(){
         const response = await fetch('https://rickandmortyapi.com/api/character/')
@@ -41,12 +71,26 @@
         console.log('Los usuarios son',users)
         const grid = document.querySelector('.grid')
         grid.innerHTML = null
+
+        
+        const form = document.querySelector('form')
+        const inputCharacter = document.querySelector('input')
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault()
+            // 1. Obtener el valor del input
+            const query = inputCharacter.value
+            // 2. Fetchear personajes en base a ese valor
+            const charactersByQuery = await getCharactersByQuery('https://rickandmortyapi.com/api/', query)
+            // 3. Mostrar en la grilla los personajes filtrados
+            appendElements(charactersByQuery, true)
+        });
+
         users.forEach(user => {
             grid.innerHTML += CardItem(user)
         })
     }
-
     mainLogic()
+
     </script>
     <style>
         .cardtext{
@@ -68,14 +112,14 @@
             margin: 0 auto;
             margin-bottom: 2%;
         }
-        #search input{
+        #buscador{
             border: none;
             width: 63%;
             background-color: rgba(60,175,69,1);
             border: 0.5px solid white;
             color: white;
         }
-        #search button{
+        #buscador-btn{
             background-color: rgba(60,175,69,1);
             border: 0.5px solid white;
             width: 35%;
@@ -116,8 +160,8 @@
 }
     .grid{
         display: grid;
-    grid-template-columns: 15% 15% 15% 15%;
-    grid-column-gap: 10%;
+    grid-template-columns: 20% 20% 20% 20%;
+    grid-column-gap: 5%;
     grid-row-gap: 2%;
     }
     </style>
