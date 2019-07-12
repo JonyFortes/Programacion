@@ -19,7 +19,7 @@ app.use(methodOverride());
 var cors = require('cors')
 app.use(cors())
 
-routes = require('./routes/pokes')(app);
+routes = require('./routes/pokemones')(app);
 
 app.get('/', function(req, res) {
   res.send("Salud!");
